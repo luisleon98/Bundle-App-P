@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:enc="http://karaf.apache.org/xmlns/jasypt/v1.0.0" xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+	xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
+						https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+						http://camel.apache.org/schema/blueprint
+						http://camel.apache.org/schema/blueprint/camel-blueprint.xsd
+						http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
+						http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
+
+	<cm:property-placeholder id="puebla.prop" persistent-id="mx.ipn.cenac.dsi.bundles.puebla_service" update-strategy="reload">
+		<cm:default-properties>
+			<cm:property name="persona.test" value="default property" />
+		</cm:default-properties>
+	</cm:property-placeholder>
+
+	<bean id="tokenVal" class="mx.ipn.cenac.dsi.bundles.puebla.service.TokenVal">
+		<property name="jwksProvider" value="${oauth2.urlJwkProv}" />
+	</bean>
+
+	<!--<bean id="mongoBean" class="com.mongodb.client.MongoClients" factory-method="create">
+		<argument value="mongodb://${db.plataforma.user}:${db.plataforma.pass}@${db.plataforma.host}/${db.plataforma.database}?readPreference=primary" />
+	</bean>-->
+	<bean id="jetty" class="org.apache.camel.component.jetty9.JettyHttpComponent9">
+		<property name="sslContextParameters" ref="sslContextParameters" />
+	</bean>
+
+	<bean id="Util" class="mx.ipn.cenac.dsi.bundles.puebla.util.Util" />
+
+	<reference id="sslContextParameters" interface="org.apache.camel.support.jsse.SSLContextParameters" ext:proxy-method="classes" />
+	<enc:property-placeholder>
+		<enc:encryptor class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
+			<property name="config">
+				<bean class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
+					<property name="algorithm" value="PBEWithMD5AndDES" />
+					<property name="passwordEnvName" value="CAMEL_ENCRYPTION_PASSWORD" />
+				</bean>
+			</property>
+		</enc:encryptor>
+	</enc:property-placeholder>	
+</blueprint>

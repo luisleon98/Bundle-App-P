@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	You under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+
+<features name="${project.artifactId}-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.6.0">
+	<!-- Para cifrar una contraseña ejecutar:
+		encrypt  algorithm PBEWithMD5AndDES password PASS LLAVE_GENERAL
+	 -->
+	<feature name='puebla-config' description='${project.name}' version='${project.version}'>
+		<details>Configuración</details>
+		<config name="${service.pid}" override='true'>
+			api.version=${project.version}
+			service.port=${service.port}
+			context.path=${contextPath}
+			trace=true
+			host_service=${env:HOST_KARAF:-localhost}
+			persona.test=testProp
+
+		<!--	db.plataforma.user=usRWplataformaIPN
+			db.plataforma.pass=ENC(VFU30jzJAhSDw+s8AWDMF5A9oQ9MolhbMj4K/2yyoQA=)
+			db.plataforma.database=dbPlataformaIPN
+			db.plataforma.host=rp5Developer01,rp5Developer02,rp5Developer03-->
+
+			envi=dev
+			
+			oauth2.local_validate=true
+			oauth2.hostname=https://dev.plataforma.ipn.mx
+			oauth2.port=8093
+			oauth2.urlJwkProv=http://dev.plataforma.ipn.mx:8092/auth/realms/dev/protocol/openid-connect/certs
+			oauth2.authorization_endpoint=/auth/realms/dev/protocol/openid-connect/auth/device
+			oauth2.response_type=code
+			oauth2.client_id=${client_id}
+			oauth2.redirect_uri=https://plataforma.ipn.mx/faces/login.xhtml
+			oauth2.scope=email
+			oauth2.audience=
+			oauth2.state=
+		</config>
+	</feature>
+
+	<!-- Eliminar si no se usa jdbc -->
+	<!-- <feature name='jdbcDatabase-config' description='configuración del datasource DATASOURCE_NAME' version='${project.version}'>
+		<details>Configuración necesaria para poder conectarse a DATASOURCE_NAME mediante jdbc</details>
+		// las configuraciones jdb comparten el nombre base (org.ops4j.datasource-), por cada conexión nueva cambiar la parte final (DATASOURCE_NAME)
+		// id que se utilizará como referencia del datasource -eliminar comentarios-
+		<config name="org.ops4j.datasource-DATASOURCE_NAME">
+			osgi.jdbc.driver.name = oracle			
+			dataSourceName = DATASOURCE_NAME
+			url = jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=)(PORT=1521))(CONNECT_DATA=(SERVER=dedicated)(SERVICE_NAME=)))
+			user = USER
+			password = PASS
+			
+			pool = dbcp2
+			xa = false
+			pool.minIdle = 2
+			pool.maxTotal = 10
+			pool.blockWhenExhausted = true
+			pool.maxWaitMillis = 2000
+			pool.testOnBorrow = true
+			pool.testWhileIdle = false
+			pool.timeBetweenEvictionRunsMillis = 120000
+		</config>
+	</feature> -->
+
+	<feature name='${service.name}' description='${service.name}' version='${project.version}'>
+		<feature>puebla-config</feature>
+		<!-- Agregar las dependecias necesarias -->
+		<feature>camel-sql</feature>
+		<feature>camel-base64</feature>
+		<feature>camel-jacksonxml</feature>
+		<feature>camel-http</feature>
+		<feature>oauth-dae-externo-config</feature>
+		<bundle>mvn:org.bouncycastle/bcprov-jdk15on/1.58</bundle>
+		<bundle>mvn:org.bouncycastle/bcpkix-jdk15on/1.58</bundle>
+		<bundle>mvn:com.itextpdf/itextpdf/5.5.13.3</bundle>
+		<!-- Bundle que contiene el servicio -->
+		<bundle>mvn:mx.ipn.cenac.dsi.bundles/puebla-service/${project.version}
+		</bundle>
+	</feature>
+	
+	<feature name='puebla-ui' description='Swagger UI' version='${project.version}'>
+		<bundle>mvn:mx.ipn.cenac.dsi.bundles/puebla-swagger/${project.version}</bundle>
+	</feature>
+</features>

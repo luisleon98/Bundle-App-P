@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:enc="http://karaf.apache.org/xmlns/jasypt/v1.0.0" xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+    xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
+                        https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+                        http://camel.apache.org/schema/blueprint
+                        https://camel.apache.org/schema/blueprint/camel-blueprint.xsd
+                        http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
+                        http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
+
+    <camelContext debug="true" trace="{{trace}}" id="puebla" xmlns="http://camel.apache.org/schema/blueprint" errorHandlerRef="errorH" logMask="true" useBlueprintPropertyResolver="true">
+        <errorHandler id="errorH" type="DeadLetterChannel" deadLetterUri="direct:err500" useOriginalBody="true" useOriginalMessage="true">
+            <redeliveryPolicy logStackTrace="true" maximumRedeliveries="1" redeliveryDelay="1000" retryAttemptedLogLevel="WARN" logExhaustedMessageHistory="false" logRetryStackTrace="true" />
+        </errorHandler>
+        <errorHandler id="noTrace" type="DeadLetterChannel" deadLetterUri="direct:err500" useOriginalBody="true" useOriginalMessage="true">
+            <redeliveryPolicy logStackTrace="true" maximumRedeliveries="1" redeliveryDelay="1000" retryAttemptedLogLevel="WARN" logExhaustedMessageHistory="false" logRetryStackTrace="false" />
+        </errorHandler>
+        <errorHandler id="noError" type="DeadLetterChannel" deadLetterUri="direct:resp200" useOriginalBody="true" useOriginalMessage="true">
+            <redeliveryPolicy logStackTrace="true" maximumRedeliveries="1" redeliveryDelay="1000" retryAttemptedLogLevel="WARN" logExhaustedMessageHistory="false" logRetryStackTrace="false" />
+        </errorHandler>
+        <routeContextRef ref="externalRoutesMAAM" />
+        <routeContextRef ref="externalRoutesECM" />
+        <restContextRef ref="externalRestConfigMAAM" />
+        <restContextRef ref="externalRestConfigECM" />
+        <onException>
+            <exception>mx.ipn.cenac.dsi.bundles.puebla.exception.BasicAuthException</exception>
+            <handled>
+                <constant>true</constant>
+            </handled>
+            <removeHeaders pattern="*" />
+            <log message="Error en validacion de autenticación básica."></log>
+            <setHeader name="Exchange.HTTP_RESPONSE_CODE">
+                <constant>200</constant>
+            </setHeader>
+            <setHeader name="Exchange.CONTENT_TYPE">
+                <constant>application/json</constant>
+            </setHeader>
+            <setBody>
+                <simple resultType="java.util.Map">{"error":{"message":"Error Inesperado","code":1},"data":{}}</simple>
+            </setBody>
+            <to uri="log:xml?level=WARN&amp;showHeaders=true" />
+            <log message="TestLog"></log>
+            <to uri="mock:resp400" />
+        </onException>
+        <onException>
+            <exception>com.auth0.jwt.exceptions.JWTVerificationException</exception>
+            <handled>
+                <constant>true</constant>
+            </handled>
+            <removeHeaders pattern="*" />
+            <log message="No existe token"></log>
+            <setHeader name="Exchange.HTTP_RESPONSE_CODE">
+                <constant>400</constant>
+            </setHeader>
+            <setHeader name="Exchange.CONTENT_TYPE">
+                <constant>application/json</constant>
+            </setHeader>
+            <setBody>
+                <simple resultType="java.util.Map">{"error":{"message":"Error en la petición","detail":""}}</simple>
+            </setBody>
+            <to uri="log:xml?level=WARN&amp;showHeaders=true" />
+            <log message="TestLog"></log>
+            <to uri="mock:resp400" />
+        </onException>
+        <onException>
+            <exception>com.auth0.jwt.exceptions.TokenExpiredException</exception>
+            <!-- <redeliveryPolicy maximumRedeliveries="2" redeliveryDelay="2000" retryAttemptedLogLevel="ERROR" /> -->
+            <handled>
+                <constant>true</constant>
+            </handled>
+            <removeHeaders pattern="*" />
+            <log message="Access Token expired"></log>
+            <setHeader name="Exchange.HTTP_RESPONSE_CODE">
+                <constant>401</constant>
+            </setHeader>
+            <setBody>
+                <simple>{"error":{"message":"Access Token expired","detail":""}}</simple>
+            </setBody>
+            <to uri="log:xml?level=WARN" />
+        </onException>
+        <onException>
+            <exception>com.auth0.jwk.NetworkException</exception>
+            <redeliveryPolicy maximumRedeliveries="2" redeliveryDelay="2000" retryAttemptedLogLevel="WARN" />
+            <handled>
+                <constant>true</constant>
+            </handled>
+            <removeHeaders pattern="*" />
+            <log message="Error al intentar conectar"></log>
+            <setHeader name="Exchange.HTTP_RESPONSE_CODE">
+                <constant>500</constant>
+            </setHeader>
+            <setBody>
+                <simple>{"error":{"message":"La base de datos no esta disponible","code":1}}
+                </simple>
+            </setBody>
+            <to uri="log:xml?level=WARN" />
+        </onException>
+
+        <!-- Configuración y documentación para los servicios rest -->
+        <restConfiguration bindingMode="json" host="{{host_service}}" contextPath="{{context.path}}" scheme="https" component="jetty" port="{{service.port}}" apiContextPath="api-doc" apiContextListing="false" enableCORS="true">
+            <apiProperty key="api.version" value="{{api.version}}" />
+            <apiProperty key="api.title" value="Api puebla de servicios" />
+            <apiProperty key="api.description" value="DESCRIPCIÓN puebla" />
+            <corsHeaders key="Access-Control-Allow-Headers" value="Content-Type, Authorization" />
+        </restConfiguration>
+
+        <rest produces="application/json; charset=utf-8" consumes="application/json; charset=utf-8" bindingMode="JSon">
+            <securityDefinitions>
+                <apiKey name="Authorization" key="Bearer" inHeader="true" />
+            </securityDefinitions>
+        </rest>
+
+        <!-- <route id="jdbcQuery">
+            <from uri="direct:jdbcQuery" />
+            <to uri="direct:oauth2Service" />
+            <setBody>
+                <simple>SELECT * FROM DUAL</simple>
+            </setBody>
+            <to uri="jdbc:DATASOURCE_NAME" />
+            <setHeader name="data">
+                <simple>${body}</simple>
+            </setHeader>
+            <to uri="direct:resp200" />
+        </route> -->
+
+        <route id="resp200">
+            <from uri="direct:resp200" />
+            <setBody>
+                <simple>${header.data}</simple>
+            </setBody>
+            <removeHeaders pattern="*" />
+            <setHeader name="Exchange.HTTP_RESPONSE_CODE">
+                <constant>200</constant>
+            </setHeader>
+            <setHeader name="Exchange.CONTENT_TYPE">
+                <constant>application/json</constant>
+            </setHeader>
+        </route>
+        <route id="resp202">
+            <from uri="direct:resp202" />
+            <setBody>
+                <simple>${header.data}</simple>
+            </setBody>
+            <removeHeaders pattern="*" />
+            <setHeader name="Exchange.HTTP_RESPONSE_CODE">
+                <constant>202</constant>
+            </setHeader>
+            <setHeader name="Exchange.CONTENT_TYPE">
+                <constant>application/json</constant>
+            </setHeader>
+        </route>
+        <route id="resp400">
+            <from uri="direct:err400" />
+            <filter>
+                <simple>${header.error} == null</simple>
+                <setBody>
+                    <simple resultType="java.util.Map">{"error":{"message":"Error en la solocitud","detail":""}}</simple>
+                </setBody>
+            </filter>
+            <removeHeaders pattern="*" />
+            <setHeader name="Exchange.HTTP_RESPONSE_CODE">
+                <constant>400</constant>
+            </setHeader>
+            <to uri="log:xml?level=WARN" />
+        </route>
+        <route id="resp401">
+            <from uri="direct:err401" />
+            <removeHeaders pattern="*" />
+            <log message="Access Token expired"/>
+            <setHeader name="Exchange.HTTP_RESPONSE_CODE">
+                <constant>401</constant>
+            </setHeader>
+            <setBody>
+                <simple>{"error":{"message":"Access Token expired","detail":""}}</simple>
+            </setBody>
+            <to uri="log:xml?level=WARN" />
+        </route>
+        <route id="resp500">
+            <from uri="direct:err500" />
+            <removeHeaders pattern="*" />
+            <setHeader name="Exchange.HTTP_RESPONSE_CODE">
+                <constant>500</constant>
+            </setHeader>
+            <setHeader name="Exchange.CONTENT_TYPE">
+                <constant>application/json</constant>
+            </setHeader>
+            <setBody>
+                <simple>{"error":{"message":"Error desconocido","code":1}}</simple>
+            </setBody>
+            <to uri="mock:dead" />
+        </route>
+        <route id="oauth" errorHandlerRef="noTrace">
+            <from uri="direct:oauth2Service" />
+            <setHeader name="bodyTmp">
+                <simple>${body}</simple>
+            </setHeader>
+            <setProperty name="ip">
+                <simple>${header.CamelHttpRemoteAddress}</simple>
+            </setProperty>
+            <choice>
+                <when>
+                    <simple>${header.Authorization} contains 'Bearer'</simple>
+                    <choice>
+                        <when>
+                            <simple>{{oauth2.local_validate}}</simple>
+                            <to uri="direct:localVal" />
+                            <transform>
+                                <simple>${body.replace('"','')}</simple>
+                            </transform>
+                            <setProperty name="user">
+                                <simple>${body}</simple>
+                            </setProperty>
+                            <choice>
+                                <when>
+                                    <simple>'{{oauth2.client_id}}' !contains ${body}</simple>
+                                    <log message="Client id ${body} no autorizado -- solo {{oauth2.client_id}}" />
+                                    <throwException message="Error al validar token"
+                                        exceptionType="com.auth0.jwt.exceptions.JWTVerificationException" />
+                                </when>
+                            </choice>
+                        </when>
+                    </choice>
+                </when>
+                <otherwise>
+                    <throwException message="Error al validar token"
+                        exceptionType="com.auth0.jwt.exceptions.JWTVerificationException" />
+                </otherwise>
+            </choice>
+            <setBody>
+                <simple>${header.bodyTmp}</simple>
+            </setBody>
+        </route>
+        <route id="valAuthLocal" errorHandlerRef="noTrace">
+            <from uri="direct:localVal" />
+            <log message="LOCAL"></log>
+            <transform>
+                <simple>${header.Authorization.replace("Bearer ","")}</simple>
+            </transform>
+            <setProperty name="tokenH">
+                <simple>${body.trim()}</simple>
+            </setProperty>
+            <bean ref="tokenVal" method="getAzp(${exchangeProperty[tokenH]})" />
+            <bean ref="tokenVal" method="tLocalValidate(${exchangeProperty[tokenH]})" />
+            <convertBodyTo type="String" />
+            <to uri="mock:resultOauth" />
+        </route>
+    </camelContext>
+</blueprint>

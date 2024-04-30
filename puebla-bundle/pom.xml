@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>mx.ipn.cenac.dsi.bundles</groupId>
+  <artifactId>puebla-bundle</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>puebla-bundle</name>
+  <description>Bundle rest-service karaf (OSGI).</description>
+
+  <modules>
+    <module>puebla-service</module>
+    <module>puebla-config</module>
+    <module>puebla-swagger</module>
+  </modules>
+
+  <properties>
+    <client_id>app.puebla</client_id>
+    <service.name>puebla-service</service.name>
+    <artefactID>puebla</artefactID>
+    <service.port>8097</service.port>
+    <hostK>localhost</hostK>
+    <proxy_path_swa>/</proxy_path_swa>
+    <proxy_port_swa>8097</proxy_port_swa>
+    <contextPath>${proxy_path_swa}puebla</contextPath>
+    <service.pid>mx.ipn.cenac.dsi.bundles.puebla_service</service.pid>
+    <maven-bundle-plugin.version>5.1.4</maven-bundle-plugin.version>
+    <camelVersion>3.14.3</camelVersion><!--  -->
+    <karafVersion>4.3.7</karafVersion>
+    <swagger-ui-version>4.9.1</swagger-ui-version>
+    <osgi.version>7.0.0</osgi.version>
+    <osgi.cmpn.version>7.0.0</osgi.cmpn.version>
+    <rediscl-common.version>1.5.0</rediscl-common.version>
+    <jwks-rsa.version>0.20.0</jwks-rsa.version>
+    <java-jwt.version>3.18.3</java-jwt.version>
+    <maven.compiler.version>3.10.1</maven.compiler.version>
+    <maven.resources.version>3.2.0</maven.resources.version>
+    <maven.jar.version>3.2.0</maven.jar.version>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
+  <profiles>
+    <profile>
+      <id>Default</id>
+      <activation>
+        <property>
+          <name>!env.ENV</name>
+        </property>
+      </activation>
+      <distributionManagement>
+        <snapshotRepository>
+          <id>snapshots</id>
+          <url>https://dev.plataforma.ipn.mx:8085/repository/snapshots/</url>
+        </snapshotRepository>
+        <repository>
+          <id>internal</id>
+          <url>https://dev.plataforma.ipn.mx:8085/repository/internal/</url>
+        </repository>
+      </distributionManagement>
+    </profile>
+
+    <profile>
+      <id>Dev</id>
+      <activation>
+        <property>
+          <name>env.ENV</name>
+          <value>dev</value>
+        </property>
+      </activation>
+      <properties>
+        <hostK>${env.HOST_KARAF}</hostK>
+        <!-- <proxy_path_swa>/karaf/</proxy_path_swa>
+        <proxy_port_swa>443</proxy_port_swa> -->
+        <!-- <contextPath>${proxy_path_swa}prototipo</contextPath> -->
+      </properties>
+      <distributionManagement>
+        <snapshotRepository>
+          <id>snapshots</id>
+          <url>https://dev.plataforma.ipn.mx:8085/repository/snapshots/</url>
+        </snapshotRepository>
+        <repository>
+          <id>internal</id>
+          <url>https://dev.plataforma.ipn.mx:8085/repository/internal/</url>
+        </repository>
+      </distributionManagement>
+    </profile>
+
+    <profile>
+      <id>Test</id>
+      <activation>
+        <property>
+          <name>env.ENV</name>
+          <value>test</value>
+        </property>
+      </activation>
+      <properties>
+        <hostK>${env.HOST_KARAF}</hostK>
+      </properties>
+      <distributionManagement>
+        <snapshotRepository>
+          <id>qasnapshots</id>
+          <url>https://qa.plataforma.ipn.mx:8085/repository/snapshots/</url>
+        </snapshotRepository>
+        <repository>
+          <id>qainternal</id>
+          <url>https://qa.plataforma.ipn.mx:8085/repository/internal/</url>
+        </repository>
+      </distributionManagement>
+    </profile>
+    <profile>
+      <id>Prod</id>
+      <activation>
+        <property>
+          <name>env.ENV</name>
+          <value>prod</value>
+        </property>
+      </activation>
+      <properties>
+        <hostK>${env.HOST_KARAF}</hostK>
+        <proxy_path_swa>/karaf/</proxy_path_swa>
+        <proxy_port_swa>443</proxy_port_swa>
+        <contextPath>${proxy_path_swa}puebla</contextPath>
+      </properties>
+      <distributionManagement>
+        <snapshotRepository>
+          <id>snapshots</id>
+          <url>https://dev.plataforma.ipn.mx:8085/repository/snapshots/</url>
+        </snapshotRepository>
+        <repository>
+          <id>internal</id>
+          <url>https://dev.plataforma.ipn.mx:8085/repository/internal/</url>
+        </repository>
+      </distributionManagement>
+    </profile>
+  </profiles>
+</project>
