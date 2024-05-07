@@ -6,9 +6,19 @@
 						https://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
     <restContext id="externalRestConfigMAAM" xmlns="http://camel.apache.org/schema/blueprint">
-        <rest path="/renapo" produces="application/json; charset=utf-8" consumes="application/json; charset=utf-8"
+        <rest path="/archivo" produces="application/json; charset=utf-8" consumes="application/json; charset=utf-8"
               bindingMode="json">
-
+            <post uri="/prueba" type="mx.ipn.cenac.dsi.bundles.puebla.requests.WebpConverterReq">
+                <description>Servicio para convertir archivos de imagenes a formato webp</description>
+                <responseMessage code="400" message="Error en autenticación"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.Error400NoAuth"/>
+                <responseMessage code="401" message="El token no es válido"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.Error401TokenInvalido"/>
+                <responseMessage code="500" message="Error interno"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.ErrorGeneral"/>
+                <security key="Bearer"/>
+                <to uri="direct:convertoToWebp"/>
+            </post>
         </rest>
     </restContext>
 </blueprint>

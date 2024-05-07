@@ -6,6 +6,18 @@
                         https://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
     <routeContext id="externalRoutesMAAM" xmlns="http://camel.apache.org/schema/blueprint">
+        <route id="convertoToWebp">
+            <from uri="direct:convertoToWebp"/>
+<!--            <to uri="direct:oauth2Service"/>-->
+
+            <bean beanType="mx.ipn.cenac.dsi.bundles.puebla.converter.WebpConverter"
+                  method="convertToWebp('${body.data.rutaArchivo}')"/>
+
+            <setBody>
+                <simple resultType="java.util.Map">{"data":{"archivo":"OK"}}</simple>
+            </setBody>
+            <to uri="direct:resp200Gral"/>
+        </route>
         <route id="resp200Gral">
             <from uri="direct:resp200Gral"/>
             <removeHeaders pattern="*"/>

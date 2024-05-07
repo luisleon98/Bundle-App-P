@@ -76,10 +76,10 @@
 		<feature>camel-base64</feature>
 		<feature>camel-jacksonxml</feature>
 		<feature>camel-http</feature>
-		<feature>oauth-dae-externo-config</feature>
 		<bundle>mvn:org.bouncycastle/bcprov-jdk15on/1.58</bundle>
 		<bundle>mvn:org.bouncycastle/bcpkix-jdk15on/1.58</bundle>
 		<bundle>mvn:com.itextpdf/itextpdf/5.5.13.3</bundle>
+		<bundle>wrap:mvn:org.sejda.imageio/webp-imageio/0.1.6</bundle>
 		<!-- Bundle que contiene el servicio -->
 		<bundle>mvn:mx.ipn.cenac.dsi.bundles/puebla-service/${project.version}
 		</bundle>
