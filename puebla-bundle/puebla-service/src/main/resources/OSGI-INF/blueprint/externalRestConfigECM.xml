@@ -6,7 +6,47 @@
 						https://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
     <restContext id="externalRestConfigECM" xmlns="http://camel.apache.org/schema/blueprint">
-        <rest path="/prueba" produces="application/json" consumes="application/json" bindingMode="json">
+        <rest path="/bitacora" produces="application/json charset=utf-8" consumes="application/json charset=utf-8"
+              bindingMode="json">
+            <!--            <post uri="/">
+                            <description>Consulta bitacora de actividades</description>
+                            <responseMessage code="400" message="Error en la petición" />
+                            <responseMessage code="200" message="Exitoso" />
+                            <responseMessage code="500" message="Error interno" />
+                            <to uri="direct:tetsJasper" />
+                        </post>-->
+            <get uri="/">
+                <description>Consulta todos los registros en bitacora</description>
+                <responseMessage code="200"
+                                 message="Reporte generado"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.BitacoraResp"/>
+                <responseMessage code="400" message="Error en autenticación"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.Error400NoAuth"/>
+                <responseMessage code="401" message="El token no es válido"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.Error401TokenInvalido"/>
+                <responseMessage code="500" message="Error interno"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.ErrorGeneral"/>
+                <security key="Bearer"/>
+                <to uri="direct:getBitacora"/>
+            </get>
+            <get uri="/{id}">
+                <description>Consulta bitacora por identificador</description>
+                <param name="id" type="path" description="Identificador del registro" required="true">
+                    <examples key="id" value="1"/>
+                </param>
+                <responseMessage code="200"
+                                 message="Reporte generado"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.BitacoraResp"/>
+                <responseMessage code="400" message="Error en autenticación"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.Error400NoAuth"/>
+                <responseMessage code="401" message="El token no es válido"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.Error401TokenInvalido"/>
+                <responseMessage code="500" message="Error interno"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.ErrorGeneral"/>
+                <security key="Bearer"/>
+                <to uri="direct:getBitacoraXId"/>
+            </get>
+
 
         </rest>
     </restContext>
