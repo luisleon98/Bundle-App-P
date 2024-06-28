@@ -10,10 +10,10 @@
 	OF ANY KIND, either express or implied. See the License for the specific 
 	language governing permissions and limitations under the License. -->
 
-<features name="${project.artifactId}-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.6.0">
-	<!-- Para cifrar una contraseña ejecutar:
-		encrypt  algorithm PBEWithMD5AndDES password PASS LLAVE_GENERAL
-	 -->
+<features name="${project.artifactId}-${project.version}"
+		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		  xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.6.0 ">
+
 	<feature name='puebla-config' description='${project.name}' version='${project.version}'>
 		<details>Configuración</details>
 		<config name="${service.pid}" override='true'>
@@ -24,13 +24,8 @@
 			host_service=${env:HOST_KARAF:-localhost}
 			persona.test=testProp
 
-		<!--	db.plataforma.user=usRWplataformaIPN
-			db.plataforma.pass=ENC(VFU30jzJAhSDw+s8AWDMF5A9oQ9MolhbMj4K/2yyoQA=)
-			db.plataforma.database=dbPlataformaIPN
-			db.plataforma.host=rp5Developer01,rp5Developer02,rp5Developer03-->
-
 			envi=dev
-			
+
 			oauth2.local_validate=true
 			oauth2.hostname=https://dev.plataforma.ipn.mx
 			oauth2.port=8093
@@ -45,18 +40,15 @@
 		</config>
 	</feature>
 
-	<!-- Eliminar si no se usa jdbc -->
-	<!-- <feature name='jdbcDatabase-config' description='configuración del datasource DATASOURCE_NAME' version='${project.version}'>
-		<details>Configuración necesaria para poder conectarse a DATASOURCE_NAME mediante jdbc</details>
-		// las configuraciones jdb comparten el nombre base (org.ops4j.datasource-), por cada conexión nueva cambiar la parte final (DATASOURCE_NAME)
-		// id que se utilizará como referencia del datasource -eliminar comentarios-
-		<config name="org.ops4j.datasource-DATASOURCE_NAME">
-			osgi.jdbc.driver.name = oracle			
-			dataSourceName = DATASOURCE_NAME
-			url = jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=)(PORT=1521))(CONNECT_DATA=(SERVER=dedicated)(SERVICE_NAME=)))
-			user = USER
-			password = PASS
-			
+	<feature name='puebla-postgre-config' description='config de PostgreSQL para App de Puebla'
+			 version='${project.version}'>
+		<details>Configuración</details>
+		<config name="org.ops4j.datasource-dspuebla">
+			osgi.jdbc.driver.name = PostgreSQL JDBC Driver
+			dataSourceName = dspuebla
+			url=jdbc:postgresql://[fc00:c2ac::c2]:5432/api_pueblos_magicos
+			user = sail
+			password = ENC(F7hqXNYpenPFrSYbmLOAhSelDiQiqWynkNS6Ccx6QG4=)
 			pool = dbcp2
 			xa = false
 			pool.minIdle = 2
@@ -67,16 +59,16 @@
 			pool.testWhileIdle = false
 			pool.timeBetweenEvictionRunsMillis = 120000
 		</config>
-	</feature> -->
-
+	</feature>
 	<feature name='${service.name}' description='${service.name}' version='${project.version}'>
+		<feature>puebla-postgre-config</feature>
 		<feature>puebla-config</feature>
 		<!-- Agregar las dependecias necesarias -->
 		<feature>camel-sql</feature>
+		<feature>camel-jdbc</feature>
 		<feature>camel-base64</feature>
 		<feature>camel-jacksonxml</feature>
 		<feature>camel-http</feature>
-		<feature>oauth-dae-externo-config</feature>
 		<bundle>mvn:org.bouncycastle/bcprov-jdk15on/1.58</bundle>
 		<bundle>mvn:org.bouncycastle/bcpkix-jdk15on/1.58</bundle>
 		<bundle>mvn:com.itextpdf/itextpdf/5.5.13.3</bundle>
@@ -84,7 +76,7 @@
 		<bundle>mvn:mx.ipn.cenac.dsi.bundles/puebla-service/${project.version}
 		</bundle>
 	</feature>
-	
+
 	<feature name='puebla-ui' description='Swagger UI' version='${project.version}'>
 		<bundle>mvn:mx.ipn.cenac.dsi.bundles/puebla-swagger/${project.version}</bundle>
 	</feature>
