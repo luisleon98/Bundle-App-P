@@ -1,16 +1,16 @@
-package mx.ipn.cenac.dsi.bundles.puebla.modelo;
+package mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "Contenedor de errores")
-public class ErrorGeneral {
+public class Error401TokenInvalido {
 
-    public class ErrorGeneralData {
-        @ApiModelProperty(example = "Error inesperado", value = "Error inesperado", required = false)
+    public class Error401TokenInvalidoData {
+        @ApiModelProperty(example = "Token inválido", value = "Token inválido", required = false)
         private String message;
 
-        @ApiModelProperty(example = "Detalle del error", value = "Detalle del error", required = false)
+        @ApiModelProperty(example = "Detalle de token inválido", value = "Detalle de token inválido", required = false)
         private String detail;
 
         public String getDetail() {
@@ -31,13 +31,13 @@ public class ErrorGeneral {
     }
 
     @ApiModelProperty(value = "Contenedor de datos del error", required = true)
-    private ErrorGeneralData error;
+    private Error401TokenInvalidoData error;
 
-    public ErrorGeneralData getError() {
+    public Error401TokenInvalidoData getError() {
         return error;
     }
 
-    public void setError(ErrorGeneralData error) {
+    public void setError(Error401TokenInvalidoData error) {
         this.error = error;
     }
 }

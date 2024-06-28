@@ -1,4 +1,4 @@
-package mx.ipn.cenac.dsi.bundles.puebla.modelo;
+package mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

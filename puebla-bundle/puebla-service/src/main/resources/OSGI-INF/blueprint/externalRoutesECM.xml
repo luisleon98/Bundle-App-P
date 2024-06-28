@@ -6,11 +6,32 @@
 						http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
     <routeContext id="externalRoutesECM" xmlns="http://camel.apache.org/schema/blueprint">
-        <route id="prueba">
-            <from uri="direct:prueba"/>
+        <route id="getBitacora">
+            <from uri="direct:getBitacora"/>
+<!--            <to uri="direct:oauth2Service"/>-->
             <setBody>
-                <simple>prueba</simple>
+                <simple>SELECT * FROM bitacora</simple>
             </setBody>
+            <to uri="jdbc:dspuebla"/>
+            <setBody>
+                <simple resultType="java.util.Map">{"data":${body}}</simple>
+            </setBody>
+            <to uri="direct:resp200Gral"/>
+        </route>
+        <route id="getBitacoraXId">
+            <from uri="direct:getBitacoraXId"/>
+<!--            <to uri="direct:oauth2Service"/>-->
+            <setHeader name="id">
+                <simple resultType="java.lang.Long">${header.id}</simple>
+            </setHeader>
+            <setBody>
+                <simple>SELECT * FROM bitacora WHERE id=:?id</simple>
+            </setBody>
+            <to uri="jdbc:dspuebla?useHeadersAsParameters=true"/>
+            <setBody>
+                <simple resultType="java.util.Map">{"data":${body}}</simple>
+            </setBody>
+            <to uri="direct:resp200Gral"/>
         </route>
     </routeContext>
 </blueprint>
