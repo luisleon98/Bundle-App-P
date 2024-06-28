@@ -17,14 +17,13 @@
 		<property name="jwksProvider" value="${oauth2.urlJwkProv}" />
 	</bean>
 
-	<!--<bean id="mongoBean" class="com.mongodb.client.MongoClients" factory-method="create">
-		<argument value="mongodb://${db.plataforma.user}:${db.plataforma.pass}@${db.plataforma.host}/${db.plataforma.database}?readPreference=primary" />
-	</bean>-->
 	<bean id="jetty" class="org.apache.camel.component.jetty9.JettyHttpComponent9">
 		<property name="sslContextParameters" ref="sslContextParameters" />
 	</bean>
 
 	<bean id="Util" class="mx.ipn.cenac.dsi.bundles.puebla.util.Util" />
+
+	<reference id="dspuebla" interface="javax.sql.DataSource" filter="(osgi.jndi.service.name=dspuebla)" />
 
 	<reference id="sslContextParameters" interface="org.apache.camel.support.jsse.SSLContextParameters" ext:proxy-method="classes" />
 	<enc:property-placeholder>
