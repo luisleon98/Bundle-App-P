@@ -2,7 +2,6 @@ package mx.ipn.cenac.dsi.bundles.puebla.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig;
@@ -10,7 +9,6 @@ import org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,13 +28,33 @@ public class Util {
         return se.decrypt(encripted);
     }
 
+    /**
+     * Agrega uno al número recibido en el parámetro
+     *
+     * @param num Numero al que se le suma uno
+     * @return suma de uno al numero recibido
+     */
+    public static Integer addOne(Integer num) {
+        return num + 1;
+    }
+
+    /**
+     * Resta uno al número recibido en el parámetro
+     *
+     * @param num Numero al que se le suma uno
+     * @return resta de uno al numero recibido
+     */
+    public static Integer restOne(Integer num) {
+        return num - 1;
+    }
+
     public String arrayToString(List<String> arreglo) {
         String concat = "";
         for (String str : arreglo) {
-            concat += str + "," ;
+            concat += str + ",";
         }
 
-        if(!concat.isEmpty()){
+        if (!concat.isEmpty()) {
             concat = concat.substring(0, concat.length() - 1);
         }
         return concat;

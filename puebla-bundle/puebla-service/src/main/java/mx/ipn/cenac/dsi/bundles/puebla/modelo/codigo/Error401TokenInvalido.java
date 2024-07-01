@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(description = "Contenedor de errores")
 public class Error401TokenInvalido {
 
-    public class Error401TokenInvalidoData {
+    public static class Error401TokenInvalidoData {
         @ApiModelProperty(example = "Token inválido", value = "Token inválido", required = false)
         private String message;
 

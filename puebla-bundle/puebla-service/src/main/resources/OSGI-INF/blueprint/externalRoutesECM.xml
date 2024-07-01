@@ -8,9 +8,9 @@
     <routeContext id="externalRoutesECM" xmlns="http://camel.apache.org/schema/blueprint">
         <route id="getBitacora">
             <from uri="direct:getBitacora"/>
-<!--            <to uri="direct:oauth2Service"/>-->
+            <!--            <to uri="direct:oauth2Service"/>-->
             <setBody>
-                <simple>SELECT * FROM bitacora</simple>
+                <simple>SELECT * FROM bitacora WHERE deleted_at IS NULL;</simple>
             </setBody>
             <to uri="jdbc:dspuebla"/>
             <setBody>
@@ -20,16 +20,157 @@
         </route>
         <route id="getBitacoraXId">
             <from uri="direct:getBitacoraXId"/>
-<!--            <to uri="direct:oauth2Service"/>-->
+            <!--            <to uri="direct:oauth2Service"/>-->
             <setHeader name="id">
                 <simple resultType="java.lang.Long">${header.id}</simple>
             </setHeader>
             <setBody>
-                <simple>SELECT * FROM bitacora WHERE id=:?id</simple>
+                <simple>SELECT * FROM bitacora WHERE id=:?id;</simple>
             </setBody>
             <to uri="jdbc:dspuebla?useHeadersAsParameters=true"/>
             <setBody>
                 <simple resultType="java.util.Map">{"data":${body}}</simple>
+            </setBody>
+            <to uri="direct:resp200Gral"/>
+        </route>
+        <route id="saveBitacora">
+            <from uri="direct:saveBitacora"/>
+            <!--            <to uri="direct:oauth2Service"/>-->
+            <setHeader name="id">
+                <simple resultType="java.lang.Long">${body.data.id}</simple>
+            </setHeader>
+            <setHeader name="movimiento">
+                <simple resultType="java.lang.String">${body.data.movimiento}</simple>
+            </setHeader>
+            <setHeader name="tabla_afectada">
+                <simple resultType="java.lang.String">${body.data.tabla_afectada}</simple>
+            </setHeader>
+            <setHeader name="id_registro_afectado">
+                <simple resultType="java.lang.Long">${body.data.id_registro_afectado}</simple>
+            </setHeader>
+            <setHeader name="id_usuario">
+                <simple resultType="java.lang.Long">${body.data.id_usuario}</simple>
+            </setHeader>
+            <setBody>
+                <simple>INSERT INTO bitacora (id, movimiento, tabla_afectada, id_registro_afectado, id_usuario,
+                    created_at, updated_at,
+                    deleted_at)
+                    VALUES
+                    (:?id,:?movimiento,:?tabla_afectada,:?id_registro_afectado,:?id_usuario,LOCALTIMESTAMP,null,null);
+                </simple>
+            </setBody>
+            <to uri="jdbc:dspuebla?useHeadersAsParameters=true"/>
+            <setBody>
+                <simple resultType="java.util.Map">{"data":{"mensaje":"Operación exitosa"}}</simple>
+            </setBody>
+            <to uri="direct:resp200Gral"/>
+        </route>
+        <route id="updateBitacora">
+            <from uri="direct:updateBitacora"/>
+            <!--            <to uri="direct:oauth2Service"/>-->
+            <setHeader name="id">
+                <simple resultType="java.lang.Long">${body.data.id}</simple>
+            </setHeader>
+
+            <setProperty name="update">
+                <simple>UPDATE bitacora SET</simple>
+            </setProperty>
+
+            <choice>
+                <when>
+                    <simple>${body.data.movimiento} != null</simple>
+                    <setHeader name="movimiento">
+                        <simple resultType="java.lang.String">${body.data.movimiento}</simple>
+                    </setHeader>
+                    <setProperty name="update">
+                        <simple>${exchangeProperty.update} movimiento=:?movimiento,</simple>
+                    </setProperty>
+                </when>
+            </choice>
+
+            <choice>
+                <when>
+                    <simple>${body.data.tabla_afectada} != null</simple>
+                    <setHeader name="tabla_afectada">
+                        <simple resultType="java.lang.String">${body.data.tabla_afectada}</simple>
+                    </setHeader>
+                    <setProperty name="update">
+                        <simple>${exchangeProperty.update} tabla_afectada=:?tabla_afectada,</simple>
+                    </setProperty>
+                </when>
+            </choice>
+
+            <choice>
+                <when>
+                    <simple>${body.data.id_registro_afectado} != null</simple>
+                    <setHeader name="id_registro_afectado">
+                        <simple resultType="java.lang.Long">${body.data.id_registro_afectado}</simple>
+                    </setHeader>
+                    <setProperty name="update">
+                        <simple>${exchangeProperty.update} id_registro_afectado=:?id_registro_afectado,</simple>
+                    </setProperty>
+                </when>
+            </choice>
+
+            <choice>
+                <when>
+                    <simple>${body.data.id_usuario} != null</simple>
+                    <setHeader name="id_usuario">
+                        <simple resultType="java.lang.Long">${body.data.id_usuario}</simple>
+                    </setHeader>
+                    <setProperty name="update">
+                        <simple>${exchangeProperty.update} id_usuario=:?id_usuario,</simple>
+                    </setProperty>
+                </when>
+            </choice>
+
+            <choice>
+                <when>
+                    <simple>${exchangeProperty.update.contains(',')}</simple>
+                    <setProperty name="lenQuery">
+                        <simple resultType="java.lang.Integer">${exchangeProperty.update.length()}</simple>
+                    </setProperty>
+                    <setProperty name="lenQuery">
+                        <simple resultType="java.lang.Integer">
+                            ${exchangeProperty.lenQuery.sum(${exchangeProperty.lenQuery},-1)}
+                        </simple>
+                    </setProperty>
+                    <setProperty name="update">
+                        <simple>${exchangeProperty.update.substring(0,${exchangeProperty.lenQuery})}</simple>
+                    </setProperty>
+
+                    <setProperty name="update">
+                        <simple>${exchangeProperty.update},updated_at=LOCALTIMESTAMP</simple>
+                    </setProperty>
+
+                    <setProperty name="update">
+                        <simple>${exchangeProperty.update} WHERE id=:?id;</simple>
+                    </setProperty>
+
+                    <setBody>
+                        <simple>${exchangeProperty.update}</simple>
+                    </setBody>
+                    <to uri="jdbc:dspuebla?useHeadersAsParameters=true"/>
+                </when>
+            </choice>
+
+            <setBody>
+                <simple resultType="java.util.Map">{"data":{"mensaje":"Operación exitosa"}}</simple>
+            </setBody>
+            <to uri="direct:resp200Gral"/>
+        </route>
+        <route id="deleteBitacora">
+            <from uri="direct:deleteBitacora"/>
+            <!--            <to uri="direct:oauth2Service"/>-->
+            <setHeader name="id">
+                <simple resultType="java.lang.Long">${header.id}</simple>
+            </setHeader>
+            <setBody>
+                <simple>UPDATE bitacora SET deleted_at=LOCALTIMESTAMP WHERE id=:?id;</simple>
+            </setBody>
+            <to uri="jdbc:dspuebla?useHeadersAsParameters=true"/>
+            <setBody>
+                <simple resultType="java.util.Map">{"data":{"mensaje":"Operación exitosa"}}</simple>
             </setBody>
             <to uri="direct:resp200Gral"/>
         </route>

@@ -4,9 +4,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "Tabla bitacora")
-public class BitacoraResp {
+public class BitacoraReq {
 
-    public static class DataBitacoraResp {
+    public static class DataBitacoraReq {
         @ApiModelProperty(value = "Llave de la bitacora", required = true, example = "1")
         private Long id;
         @ApiModelProperty(value = "Movimiento realizado", required = true, example = "alta")
@@ -17,12 +17,6 @@ public class BitacoraResp {
         private Long id_registro_afectado;
         @ApiModelProperty(value = "Identificador del usuario que realiza el movimiento", required = true, example = "1")
         private Long id_usuario;
-        @ApiModelProperty(value = "Fecha de creación", required = true, example = "1719605912000")
-        private Long created_at;
-        @ApiModelProperty(value = "Fecha de actualización", required = true, example = "1719605912000")
-        private Long updated_at;
-        @ApiModelProperty(value = "Fecha de borrado", required = true, example = "1719605912000")
-        private Long deleted_at;
 
         public Long getId() {
             return id;
@@ -63,40 +57,16 @@ public class BitacoraResp {
         public void setId_usuario(Long id_usuario) {
             this.id_usuario = id_usuario;
         }
-
-        public Long getCreated_at() {
-            return created_at;
-        }
-
-        public void setCreated_at(Long created_at) {
-            this.created_at = created_at;
-        }
-
-        public Long getUpdated_at() {
-            return updated_at;
-        }
-
-        public void setUpdated_at(Long updated_at) {
-            this.updated_at = updated_at;
-        }
-
-        public Long getDeleted_at() {
-            return deleted_at;
-        }
-
-        public void setDeleted_at(Long deleted_at) {
-            this.deleted_at = deleted_at;
-        }
     }
 
     @ApiModelProperty(value = "Contenedor de datos", required = true)
-    private DataBitacoraResp data;
+    private DataBitacoraReq data;
 
-    public DataBitacoraResp getData() {
+    public DataBitacoraReq getData() {
         return data;
     }
 
-    public void setData(DataBitacoraResp data) {
+    public void setData(DataBitacoraReq data) {
         this.data = data;
     }
 }

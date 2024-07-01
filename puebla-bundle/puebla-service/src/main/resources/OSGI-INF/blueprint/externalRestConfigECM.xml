@@ -16,9 +16,9 @@
                             <to uri="direct:tetsJasper" />
                         </post>-->
             <get uri="/">
-                <description>Consulta todos los registros en bitacora</description>
+                <description>Consulta todos los registros</description>
                 <responseMessage code="200"
-                                 message="Reporte generado"
+                                 message="Registros"
                                  responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.BitacoraResp"/>
                 <responseMessage code="400" message="Error en autenticación"
                                  responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.Error400NoAuth"/>
@@ -30,12 +30,12 @@
                 <to uri="direct:getBitacora"/>
             </get>
             <get uri="/{id}">
-                <description>Consulta bitacora por identificador</description>
+                <description>Consulta registro por identificador</description>
                 <param name="id" type="path" description="Identificador del registro" required="true">
                     <examples key="id" value="1"/>
                 </param>
                 <responseMessage code="200"
-                                 message="Reporte generado"
+                                 message="Registro"
                                  responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.BitacoraResp"/>
                 <responseMessage code="400" message="Error en autenticación"
                                  responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.Error400NoAuth"/>
@@ -46,8 +46,51 @@
                 <security key="Bearer"/>
                 <to uri="direct:getBitacoraXId"/>
             </get>
-
-
+            <post uri="/"
+                  type="mx.ipn.cenac.dsi.bundles.puebla.modelo.BitacoraReq">
+                <description>Guarda un registro</description>
+                <responseMessage code="200" message="Operación exitosa"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.OperationOkResp"/>
+                <responseMessage code="400" message="Error en autenticación"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.Error400NoAuth"/>
+                <responseMessage code="401" message="El token no es válido"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.Error401TokenInvalido"/>
+                <responseMessage code="500" message="Error interno"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.ErrorGeneral"/>
+                <security key="Bearer"/>
+                <to uri="direct:saveBitacora"/>
+            </post>
+            <put uri="/"
+                  type="mx.ipn.cenac.dsi.bundles.puebla.modelo.BitacoraReq">
+                <description>Actualiza únicamente los campos que se envían del registro identificado por el campo id enviado</description>
+                <responseMessage code="200" message="Operación exitosa"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.OperationOkResp"/>
+                <responseMessage code="400" message="Error en autenticación"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.Error400NoAuth"/>
+                <responseMessage code="401" message="El token no es válido"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.Error401TokenInvalido"/>
+                <responseMessage code="500" message="Error interno"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.ErrorGeneral"/>
+                <security key="Bearer"/>
+                <to uri="direct:updateBitacora"/>
+            </put>
+            <delete uri="/{id}">
+                <description>Eliminar registro por identificador</description>
+                <param name="id" type="path" description="Identificador del registro a borrar" required="true">
+                    <examples key="id" value="1"/>
+                </param>
+                <responseMessage code="200"
+                                 message="Operación exitosa"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.OperationOkResp"/>
+                <responseMessage code="400" message="Error en autenticación"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.Error400NoAuth"/>
+                <responseMessage code="401" message="El token no es válido"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.Error401TokenInvalido"/>
+                <responseMessage code="500" message="Error interno"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.ErrorGeneral"/>
+                <security key="Bearer"/>
+                <to uri="direct:deleteBitacora"/>
+            </delete>
         </rest>
     </restContext>
 </blueprint>
