@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(description = "Contenedor de errores")
 public class ErrorGeneral {
 
-    public class ErrorGeneralData {
+    public static class ErrorGeneralData {
         @ApiModelProperty(example = "Error inesperado", value = "Error inesperado", required = false)
         private String message;
 

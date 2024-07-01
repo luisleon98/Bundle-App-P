@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(description = "Contenedor de errores")
 public class Error400NoAuth {
 
-    public class Error400NoAuthData {
+    public static class Error400NoAuthData {
         @ApiModelProperty(example = "Error en autenticación", value = "Error en autenticación", required = false)
         private String message;
 
