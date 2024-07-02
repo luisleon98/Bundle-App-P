@@ -36,27 +36,24 @@
         <route id="saveBitacora">
             <from uri="direct:saveBitacora"/>
             <!--            <to uri="direct:oauth2Service"/>-->
-            <setHeader name="id">
-                <simple resultType="java.lang.Long">${body.data.id}</simple>
-            </setHeader>
-            <setHeader name="movimiento">
-                <simple resultType="java.lang.String">${body.data.movimiento}</simple>
-            </setHeader>
-            <setHeader name="tabla_afectada">
-                <simple resultType="java.lang.String">${body.data.tabla_afectada}</simple>
-            </setHeader>
-            <setHeader name="id_registro_afectado">
-                <simple resultType="java.lang.Long">${body.data.id_registro_afectado}</simple>
-            </setHeader>
-            <setHeader name="id_usuario">
-                <simple resultType="java.lang.Long">${body.data.id_usuario}</simple>
-            </setHeader>
+                        <setHeader name="movimiento">
+                            <simple resultType="java.lang.String">${body.data.movimiento}</simple>
+                        </setHeader>
+                        <setHeader name="tabla_afectada">
+                            <simple resultType="java.lang.String">${body.data.tabla_afectada}</simple>
+                        </setHeader>
+                        <setHeader name="id_registro_afectado">
+                            <simple resultType="java.lang.Long">${body.data.id_registro_afectado}</simple>
+                        </setHeader>
+                        <setHeader name="id_usuario">
+                            <simple resultType="java.lang.Long">${body.data.id_usuario}</simple>
+                        </setHeader>
             <setBody>
-                <simple>INSERT INTO bitacora (id, movimiento, tabla_afectada, id_registro_afectado, id_usuario,
+                <simple>INSERT INTO bitacora (movimiento, tabla_afectada, id_registro_afectado, id_usuario,
                     created_at, updated_at,
                     deleted_at)
                     VALUES
-                    (:?id,:?movimiento,:?tabla_afectada,:?id_registro_afectado,:?id_usuario,LOCALTIMESTAMP,null,null);
+                    (:?movimiento,:?tabla_afectada,:?id_registro_afectado,:?id_usuario,LOCALTIMESTAMP,null,null);
                 </simple>
             </setBody>
             <to uri="jdbc:dspuebla?useHeadersAsParameters=true"/>
@@ -174,5 +171,96 @@
             </setBody>
             <to uri="direct:resp200Gral"/>
         </route>
+        <route id="saveUsuario">
+            <from uri="direct:saveUsuario"/>
+            <!--            <to uri="direct:oauth2Service"/>-->
+            <log message="save usuario"/>
+            <setHeader name="user_name">
+                <simple resultType="java.lang.String">${body.data.user_name}</simple>
+            </setHeader>
+            <setProperty name="nombre">
+                <simple>${body.data.user_name}</simple>
+            </setProperty>
+            <setHeader name="password">
+                <simple resultType="java.lang.String">${body.data.password}</simple>
+            </setHeader>
+            <setHeader name="remember_token">
+                <simple resultType="java.lang.String">${body.data.remember_token}</simple>
+            </setHeader>
+            <log message="save2"/>
+            <setHeader name="id_tipo_usuario">  <!--Turista-->
+                <simple resultType="java.lang.Integer">6</simple>
+            </setHeader>
+            <log message="save3"/>
+            <doTry>
+                <setBody>
+                    <simple>INSERT INTO usuarios (user_name, password, remember_token,
+                        created_at, updated_at,
+                        deleted_at, id_tipo_usuario)
+                        VALUES
+                        (:?user_name,:?password,:?remember_token,LOCALTIMESTAMP,null,null,:?id_tipo_usuario)
+                        RETURNING id;
+                    </simple>
+                </setBody>
+                <log message="usuarios salvado ${body}"/>
+                <to uri="jdbc:dspuebla?useHeadersAsParameters=true"/>
+                <setProperty name="idUsuario">
+                    <simple resultType="java.lang.Integer">${body[0].get("id")}</simple>
+                </setProperty>
+                <to uri="direct:savePersona"/>
+                <bean beanType="mx.ipn.cenac.dsi.bundles.puebla.util.Util"
+                      method="bitacoraReq('Alta usuario','usuarios',${exchangeProperty.idUsuario},${exchangeProperty.idUsuario})"/>
+                <to uri="direct:saveBitacora"/>
+                <setBody>
+                    <simple resultType="java.util.Map">{"data":{"message":"Registro guardado"}}
+                    </simple>
+                </setBody>
+                <to uri="direct:resp202Gral"/>
+                <doCatch>
+                    <exception>java.lang.Exception</exception>
+
+                    <log message="${exception.message}"/>
+                    <setBody>
+                        <simple resultType="java.util.Map">{'error':{'message':'${exception.message}','detail':''}}
+                        </simple>
+                    </setBody>
+                </doCatch>
+
+            </doTry>
+        </route>
+        <route id="savePersona">
+            <from uri="direct:savePersona"/>
+            <setHeader name="nombre">
+                <simple resultType="java.lang.String">${exchangeProperty.nombre}</simple>
+            </setHeader>
+            <setHeader name="id_usuario">
+                <simple resultType="java.lang.Integer">${exchangeProperty.idUsuario}</simple>
+            </setHeader>
+            <doTry>
+                <setBody>
+                    <simple>INSERT INTO personas (nombre, apellido_pat, apellido_mat, id_usuario,
+                        created_at, updated_at,
+                        deleted_at)
+                        VALUES
+                        (:?nombre,'','',:?id_usuario,LOCALTIMESTAMP,null,null)
+                        RETURNING id;
+                    </simple>
+                </setBody>
+                <log message="usuarios salvado ${body}"/>
+                <to uri="jdbc:dspuebla?useHeadersAsParameters=true"/>
+                <setProperty name="idPersona">
+                    <simple resultType="java.lang.Integer">${body[0].get("id")}</simple>
+                </setProperty>
+                <doCatch>
+                    <exception>java.lang.Exception</exception>
+                    <setBody>
+                        <simple resultType="java.util.Map">{"error":{"message":"Error al guardar a la persona","detail":""}}
+                        </simple>
+                    </setBody>
+                </doCatch>
+            </doTry>
+        </route>
     </routeContext>
+
+
 </blueprint>

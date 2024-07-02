@@ -8,13 +8,6 @@
     <restContext id="externalRestConfigECM" xmlns="http://camel.apache.org/schema/blueprint">
         <rest path="/bitacora" produces="application/json charset=utf-8" consumes="application/json charset=utf-8"
               bindingMode="json">
-            <!--            <post uri="/">
-                            <description>Consulta bitacora de actividades</description>
-                            <responseMessage code="400" message="Error en la petición" />
-                            <responseMessage code="200" message="Exitoso" />
-                            <responseMessage code="500" message="Error interno" />
-                            <to uri="direct:tetsJasper" />
-                        </post>-->
             <get uri="/">
                 <description>Consulta todos los registros</description>
                 <responseMessage code="200"
@@ -92,5 +85,26 @@
                 <to uri="direct:deleteBitacora"/>
             </delete>
         </rest>
+        <rest path="/usuario" produces="application/json charset=utf-8" consumes="application/json charset=utf-8"
+              bindingMode="json">
+            <post uri="/"
+                  type="mx.ipn.cenac.dsi.bundles.puebla.modelo.UsuarioReq">
+                <description>Guarda un registro</description>
+                <responseMessage code="200" message="Operación exitosa"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.OperationOkResp"/>
+                <responseMessage code="202" message="Error de  valiación"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.Error202Validacion"/>
+                <responseMessage code="400" message="Error en autenticación"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.Error400NoAuth"/>
+                <responseMessage code="401" message="El token no es válido"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.Error401TokenInvalido"/>
+                <responseMessage code="500" message="Error interno"
+                                 responseModel="mx.ipn.cenac.dsi.bundles.puebla.modelo.codigo.ErrorGeneral"/>
+                <security key="Bearer"/>
+                <to uri="direct:saveUsuario"/>
+            </post>
+        </rest>
+
+
     </restContext>
 </blueprint>
