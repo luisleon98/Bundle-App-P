@@ -7,8 +7,6 @@ import io.swagger.annotations.ApiModelProperty;
 public class BitacoraReq {
 
     public static class DataBitacoraReq {
-        @ApiModelProperty(value = "Llave de la bitacora", required = true, example = "1")
-        private Long id;
         @ApiModelProperty(value = "Movimiento realizado", required = true, example = "alta")
         private String movimiento;
         @ApiModelProperty(value = "Tabla afectada", required = true, example = "bitacora")
@@ -17,14 +15,6 @@ public class BitacoraReq {
         private Long id_registro_afectado;
         @ApiModelProperty(value = "Identificador del usuario que realiza el movimiento", required = true, example = "1")
         private Long id_usuario;
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
 
         public String getMovimiento() {
             return movimiento;

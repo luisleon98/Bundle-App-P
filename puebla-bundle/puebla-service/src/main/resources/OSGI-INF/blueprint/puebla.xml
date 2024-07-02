@@ -94,7 +94,6 @@
             </setBody>
             <to uri="log:xml?level=WARN" />
         </onException>
-
         <!-- Configuración y documentación para los servicios rest -->
         <restConfiguration bindingMode="json" host="{{host_service}}" contextPath="{{context.path}}" scheme="https" component="jetty" port="{{service.port}}" apiContextPath="api-doc" apiContextListing="false" enableCORS="true">
             <apiProperty key="api.version" value="{{api.version}}" />

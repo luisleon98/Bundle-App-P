@@ -2,6 +2,9 @@ package mx.ipn.cenac.dsi.bundles.puebla.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import io.swagger.annotations.ApiModelProperty;
+import mx.ipn.cenac.dsi.bundles.puebla.modelo.BitacoraReq;
+import mx.ipn.cenac.dsi.bundles.puebla.modelo.UsuarioReq;
 import org.apache.camel.Exchange;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig;
@@ -125,5 +128,16 @@ public class Util {
     public static Map<String, Object> convertInputStreamToMap(InputStream inputStream) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(inputStream, Map.class);
+    }
+
+    public BitacoraReq bitacoraReq (String movimiento, String tabla_afectada, Long id_registro_afectado,Long id_usuario){
+        BitacoraReq.DataBitacoraReq bitacora = new BitacoraReq.DataBitacoraReq();
+        bitacora.setMovimiento(movimiento);
+        bitacora.setTabla_afectada(tabla_afectada);
+        bitacora.setId_registro_afectado(id_registro_afectado);
+        bitacora.setId_usuario(id_usuario);
+        BitacoraReq bitacoraReq = new BitacoraReq();
+        bitacoraReq.setData(bitacora);
+        return bitacoraReq;
     }
 }
